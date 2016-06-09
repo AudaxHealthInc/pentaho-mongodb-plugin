@@ -193,14 +193,12 @@ public class MongoDbInput extends BaseStep implements StepInterface {
         data.m_pipelineResult = result.results().iterator();
         if ( first ) {
           // log the server used for the first query at the basic level
-          logBasic( BaseMessages.getString( PKG, "MongoDbInput.Message.AggregationPulledDataFrom", result //$NON-NLS-1$
-                  .getServerUsed().toString() ) );
+          logBasic( BaseMessages.getString( PKG, "MongoDbInput.Message.AggregationPulledDataFrom", "unknown server" ) );
         } else {
           // only log the server used to pull for each subsequent row at the
           // detailed level
           logDetailed(
-              BaseMessages.getString( PKG, "MongoDbInput.Message.AggregationPulledDataFrom", result //$NON-NLS-1$
-                      .getServerUsed().toString() ) );
+              BaseMessages.getString( PKG, "MongoDbInput.Message.AggregationPulledDataFrom", "unknown server" ) );
         }
       } else {
         if ( meta.getExecuteForEachIncomingRow() && m_currentInputRowDrivingQuery != null ) {

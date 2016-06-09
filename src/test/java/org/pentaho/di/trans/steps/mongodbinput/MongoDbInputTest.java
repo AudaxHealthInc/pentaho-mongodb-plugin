@@ -121,7 +121,7 @@ public class MongoDbInputTest extends BaseMongoDbStepTest {
     Iterator resultsIterator = mock( Iterator.class );
     when( iterableResults.iterator() ).thenReturn( resultsIterator );
     when( results.results() ).thenReturn( iterableResults );
-    when( results.getServerUsed() ).thenReturn( mock( ServerAddress.class ) );
+//    when( results.getServerUsed() ).thenReturn( mock( ServerAddress.class ) );
 
     dbInput.init( stepMetaInterface, stepDataInterface );
     dbInput.processRow( stepMetaInterface, stepDataInterface );

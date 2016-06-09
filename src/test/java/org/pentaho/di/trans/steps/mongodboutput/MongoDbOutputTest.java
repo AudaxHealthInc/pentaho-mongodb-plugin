@@ -850,7 +850,7 @@ public class MongoDbOutputTest extends BaseMongoDbStepTest {
     WriteResult result = mock( WriteResult.class );
     CommandResult commandResult = mock( CommandResult.class );
     when( commandResult.ok() ).thenReturn( true );
-    when( result.getLastError() ).thenReturn( commandResult );
+//    when( result.getLastError() ).thenReturn( commandResult );
     when( mongoCollectionWrapper.update( any( DBObject.class ), any( DBObject.class ), anyBoolean(), anyBoolean() ) )
       .thenReturn( result );
     when( stepMetaInterface.getUpdate() ).thenReturn( true );
@@ -869,7 +869,7 @@ public class MongoDbOutputTest extends BaseMongoDbStepTest {
     verify( mongoCollectionWrapper )
       .update( updateQueryCaptor.capture(), insertCaptor.capture(), anyBoolean(), anyBoolean() );
     // result is checked
-    verify( result ).getLastError();
+//    verify( result ).getLastError();
     // updated field is expected
     assertThat( updateQueryCaptor.getValue(), equalTo( new BasicDBObject( "foo", "foo" ) ) );
     // insert document is expected
@@ -917,7 +917,7 @@ public class MongoDbOutputTest extends BaseMongoDbStepTest {
     WriteResult result = mock( WriteResult.class );
     CommandResult commandResult = mock( CommandResult.class );
     when( commandResult.ok() ).thenReturn( true );
-    when( result.getLastError() ).thenReturn( commandResult );
+//    when( result.getLastError() ).thenReturn( commandResult );
     when( mongoCollectionWrapper.save( dbOutput.m_batch.get( 0 ) ) ).thenReturn( result );
 
     doThrow( mock( MongoException.class ) ).when( mongoCollectionWrapper ).insert( anyList() );

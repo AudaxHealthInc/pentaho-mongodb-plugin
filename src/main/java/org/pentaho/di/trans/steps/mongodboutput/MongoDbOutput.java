@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.mongodb.*;
 import org.pentaho.di.core.Const;
 import org.pentaho.di.core.exception.KettleException;
 import org.pentaho.di.core.row.RowMetaInterface;
@@ -37,11 +38,6 @@ import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
 import org.pentaho.mongo.MongoDbException;
 
-import com.mongodb.CommandResult;
-import com.mongodb.DBObject;
-import com.mongodb.MongoException;
-import com.mongodb.ServerAddress;
-import com.mongodb.WriteResult;
 import org.pentaho.mongo.wrapper.MongoWrapperUtil;
 
 /**
@@ -248,7 +244,7 @@ public class MongoDbOutput extends BaseStep implements StepInterface {
 
     while ( retrys <= m_writeRetries && !isStopped() ) {
       WriteResult result = null;
-      CommandResult cmd = null;
+//      CommandResult cmd = null;
       try {
         // TODO It seems that doing an update() via a secondary node does not
         // generate any sort of exception or error result! (at least via
@@ -265,14 +261,16 @@ public class MongoDbOutput extends BaseStep implements StepInterface {
           throw new MongoException( e.getMessage(), e );
         }
 
-        cmd = result.getLastError();
-        if ( cmd != null && !cmd.ok() ) {
-          String message = cmd.getErrorMessage();
-          logError(
-              BaseMessages.getString( PKG, "MongoDbOutput.Messages.Error.MongoReported", message ) ); //$NON-NLS-1$
+//        cmd = result.getLastError();
+//        if ( cmd != null && !cmd.ok() ) {
+//          String message = cmd.getErrorMessage();
+//          logError(
+//              BaseMessages.getString( PKG, "MongoDbOutput.Messages.Error.MongoReported", message ) ); //$NON-NLS-1$
+//
+//          cmd.throwOnError();
+//        }
 
-          cmd.throwOnError();
-        }
+        break;
       } catch ( MongoException me ) {
         lastEx = me;
         retrys++;
@@ -290,9 +288,9 @@ public class MongoDbOutput extends BaseStep implements StepInterface {
         }
       }
 
-      if ( cmd != null && cmd.ok() ) {
-        break;
-      }
+//      if ( cmd != null && cmd.ok() ) {
+//        break;
+//      }
     }
 
     if ( ( retrys > m_writeRetries || isStopped() ) && lastEx != null ) {
@@ -317,15 +315,15 @@ public class MongoDbOutput extends BaseStep implements StepInterface {
       Object[] correspondingRow = m_batchRows.get( i );
       try {
         result = m_data.getCollection().save( toTry );
-        cmd = result.getLastError();
-
-        if ( cmd != null && !cmd.ok() ) {
-          String message = cmd.getErrorMessage();
-          logError(
-              BaseMessages.getString( PKG, "MongoDbOutput.Messages.Error.MongoReported", message ) ); //$NON-NLS-1$
-
-          cmd.throwOnError();
-        }
+//        cmd = result.getLastError();
+//
+//        if ( cmd != null && !cmd.ok() ) {
+//          String message = cmd.getErrorMessage();
+//          logError(
+//              BaseMessages.getString( PKG, "MongoDbOutput.Messages.Error.MongoReported", message ) ); //$NON-NLS-1$
+//
+//          cmd.throwOnError();
+//        }
 
         count++;
       } catch ( MongoException ex ) {
@@ -369,20 +367,22 @@ public class MongoDbOutput extends BaseStep implements StepInterface {
       try {
         if ( retries == 0 ) {
           result = m_data.getCollection().insert( m_batch );
-          cmd = result.getLastError();
-
-          if ( cmd != null && !cmd.ok() ) {
-            String message = cmd.getErrorMessage();
-            logError(
-                BaseMessages.getString( PKG, "MongoDbOutput.Messages.Error.MongoReported", message ) ); //$NON-NLS-1$
-
-            cmd.throwOnError();
-          }
+//          cmd = result.getLastError();
+//
+//          if ( cmd != null && !cmd.ok() ) {
+//            String message = cmd.getErrorMessage();
+//            logError(
+//                BaseMessages.getString( PKG, "MongoDbOutput.Messages.Error.MongoReported", message ) ); //$NON-NLS-1$
+//
+//            cmd.throwOnError();
+//          }
         } else {
           // fall back to save
           logBasic( BaseMessages.getString( PKG, "MongoDbOutput.Messages.SavingIndividualDocsInCurrentBatch" ) );
           cmd = batchRetryUsingSave( retries == m_writeRetries );
         }
+
+        break;
       } catch ( MongoException me ) {
         // avoid exception if a timeout issue occurred and it was exactly the first attempt
         boolean shouldNotBeAvoided = !isTimeoutException( me ) && ( retries == 0 );
@@ -409,17 +409,17 @@ public class MongoDbOutput extends BaseStep implements StepInterface {
         // throw new KettleException(me.getMessage(), me);
       }
 
-      if ( cmd != null ) {
-        ServerAddress s = cmd.getServerUsed();
-        if ( s != null ) {
-          logDetailed(
-              BaseMessages.getString( PKG, "MongoDbOutput.Messages.WroteBatchToServer", s.toString() ) ); //$NON-NLS-1$
-        }
-      }
+//      if ( cmd != null ) {
+//        ServerAddress s = cmd.getServerUsed();
+//        if ( s != null ) {
+//          logDetailed(
+//              BaseMessages.getString( PKG, "MongoDbOutput.Messages.WroteBatchToServer", s.toString() ) ); //$NON-NLS-1$
+//        }
+//      }
 
-      if ( cmd != null && cmd.ok() ) {
-        break;
-      }
+//      if ( cmd != null && cmd.ok() ) {
+//        break;
+//      }
     }
 
     if ( ( retries > m_writeRetries || isStopped() ) && lastEx != null ) {
@@ -431,7 +431,7 @@ public class MongoDbOutput extends BaseStep implements StepInterface {
   }
 
   private static boolean isTimeoutException( MongoException me ) {
-    return ( me instanceof MongoException.Network ) && ( me.getCause() instanceof SocketTimeoutException );
+    return ( me instanceof MongoSocketException) && ( me.getCause() instanceof SocketTimeoutException );
   }
 
   @Override public boolean init( StepMetaInterface stepMetaInterface, StepDataInterface stepDataInterface ) {
