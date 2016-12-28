@@ -174,8 +174,8 @@ public class MongoField implements Comparable<MongoField> {
         return m_tempValueMeta.getBigNumber( fieldValue );
       case ValueMetaInterface.TYPE_BINARY:
         if ( fieldValue instanceof Binary ) {
-          fieldValue = ( (Binary) fieldValue ).getData();
-        } else {
+          fieldValue = ((Binary) fieldValue).getData();
+        } else if (!(fieldValue instanceof byte[])) {
           fieldValue = fieldValue.toString().getBytes();
         }
         return m_tempValueMeta.getBinary( fieldValue );
